@@ -15,21 +15,7 @@ local beautiful = require("beautiful")
 local HOME = os.getenv('HOME')
 local ICON_DIR = HOME .. '/.config/awesome/awesome-wm-widgets/logout-menu-widget/icons/'
 
-local logout_menu_widget = wibox.widget {
-    {
-        {
-            image = ICON_DIR .. 'power_w.svg',
-            resize = true,
-            widget = wibox.widget.imagebox,
-        },
-        margins = 4,
-        layout = wibox.container.margin
-    },
-    shape = function(cr, width, height)
-    gears.shape.rounded_rect(cr, width, height, 4)
-    end,
-    widget = wibox.container.background,
-}
+local logout_menu_widget = {}
 
 local popup = awful.popup {
     ontop = true,
@@ -63,6 +49,22 @@ local function worker(user_args)
         { name = 'Reboot', icon_name = 'refresh-cw.svg', command = onreboot },
         { name = 'Suspend', icon_name = 'moon.svg', command = onsuspend },
         { name = 'Power off', icon_name = 'power.svg', command = onpoweroff },
+    }
+
+    local logout_menu_widget = wibox.widget {
+        {
+            {
+                image = ICON_DIR .. 'power_w.svg',
+                resize = true,
+                widget = wibox.widget.imagebox,
+            },
+            margins = 4,
+            layout = wibox.container.margin
+        },
+        shape = function(cr, width, height)
+        gears.shape.rounded_rect(cr, width, height, 4)
+        end,
+        widget = wibox.container.background,
     }
 
     for _, item in ipairs(menu_items) do
