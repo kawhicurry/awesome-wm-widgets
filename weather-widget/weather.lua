@@ -15,8 +15,10 @@ local beautiful = require("beautiful")
 
 local HOME_DIR = os.getenv("HOME")
 local WIDGET_DIR = HOME_DIR .. "/.config/awesome/awesome-wm-widgets/weather-widget"
-local GET_FORECAST_CMD =
-	[[bash -c "str=$(curl --silent 'https://restapi.amap.com/v3/ip?output=json&key=0fbd7fdd93b4f085ba8f73f851658bc7' | jq -r .rectangle | awk -F ',|;' '{print ($1+$3)/2 , ($2+$4)/2 }');curl -s --show-error -X GET %s"]]
+local GET_LOCATION_CMD_PREFIX = [[bash -c "str=$(curl --silent 'https://restapi.amap.com/v3/ip?output=json&key=]]
+local GET_LOCATION_CMD_POSTFIX = [[' | jq -r .rectangle | awk -F ',|;' '{print ($1+$3)/2 , ($2+$4)/2 }');curl -s --show-error -X GET %s"]]
+-- local GET_FORECAST_CMD =
+	-- [[bash -c "str=$(curl --silent 'https://restapi.amap.com/v3/ip?output=json&key=0fbd7fdd93b4f085ba8f73f851658bc7' | jq -r .rectangle | awk -F ',|;' '{print ($1+$3)/2 , ($2+$4)/2 }');curl -s --show-error -X GET %s"]]
 
 local SYS_LANG = os.getenv("LANG"):sub(1, 2)
 if SYS_LANG == "C" or SYS_LANG == "C." then
@@ -178,6 +180,7 @@ local function worker(user_args)
 
 	local coordinates = args.coordinates
 	local api_key = args.api_key
+  local geo_api_key = args.geo_api_key
 	local font_name = args.font_name or beautiful.font:gsub("%s%d+$", "")
 	local units = args.units or "metric"
 	local time_format_12h = args.time_format_12h
@@ -189,6 +192,11 @@ local function worker(user_args)
 	local timeout = args.timeout or 120
 
 	local ICONS_DIR = WIDGET_DIR .. "/icons/" .. icon_pack_name .. "/"
+  local GET_FORECAST_CMD = (
+    GET_LOCATION_CMD_PREFIX
+    .. geo_api_key
+    .. GET_LOCATION_CMD_POSTFIX
+    )
 	local owm_one_cal_api = (
 		"'https://api.openweathermap.org/data/2.5/onecall"
 		.. "?lat='"

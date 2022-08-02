@@ -23,7 +23,7 @@ local function worker(user_args)
 
     local args = user_args or {}
 
-    local font = args.font or 'Play 6'
+    local font = args.font or 'Play 8'
     local arc_thickness = args.arc_thickness or 2
     local show_current_level = args.show_current_level or false
     local size = args.size or 18
@@ -45,6 +45,9 @@ local function worker(user_args)
     if enable_battery_warning == nil then
         enable_battery_warning = true
     end
+    local charge_low_limit = args.charge_low_limit or 15
+    local charge_warning_limit = args.charge_warning_limit or 40
+    local charge_full_limit = args.charge_full_limit or 100
 
     local text = wibox.widget {
         font = font,
@@ -112,22 +115,22 @@ local function worker(user_args)
 
         if show_current_level == true then
             --- if battery is fully charged (100) there is not enough place for three digits, so we don't show any text
-            text.text = charge == 100
+            text.text = charge == charge_full_limit
                     and ''
                     or string.format('%d', charge)
         else
             text.text = ''
         end
 
-        if charge < 15 then
+        if charge < charge_low_limit then
             widget.colors = { low_level_color }
-            if enable_battery_warning and status ~= 'Charging' and os.difftime(os.time(), last_battery_check) > 300 then
+            if enable_battery_warning and status ~= 'Charging' and os.difftime(os.time(), last_battery_check) > 60 then
                 -- if 5 minutes have elapsed since the last warning
                 last_battery_check = os.time()
 
                 show_battery_warning()
             end
-        elseif charge > 15 and charge < 40 then
+        elseif charge > charge_low_limit and charge < charge_warning_limit then
             widget.colors = { medium_level_color }
         else
             widget.colors = { main_color }
